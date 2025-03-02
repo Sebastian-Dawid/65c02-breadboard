@@ -27,6 +27,9 @@ reset:
 	lda #%00000110	;;; Increment address; Don't shift display
 	jsr send_instruction
 
+	lda #%00000001	;;; Clear display
+	jsr send_instruction
+
 	ldx #$0		;;; Set loop counter to 0
 loop:
 	lda str,X	;;; Load string, use X as offset
