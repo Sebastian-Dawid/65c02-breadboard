@@ -8,6 +8,9 @@ asm_available := $(shell command -v ./vasm/vasm6502_oldstyle 2> /dev/null)
 
 all: $(targets)
 
+%: %.bin
+	@minipro -p AT28C256 -uP -w $<
+
 %.bin: %.s
 ifndef asm_available
 	@curl -O http://sun.hasenbraten.de/vasm/release/vasm.tar.gz;\

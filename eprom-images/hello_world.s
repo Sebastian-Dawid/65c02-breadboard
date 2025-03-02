@@ -33,7 +33,6 @@ reset:
 	ldx #$0		;;; Set loop counter to 0
 loop:
 	lda str,X	;;; Load string, use X as offset
-	cmp #$0
 	beq halt
 	jsr write_char
 	inx
@@ -49,6 +48,7 @@ send_instruction:
 	sta PORTA
 	lda #$0		;;; Clear RS/RW/E bits
 	sta PORTA
+	jsr wait_while_busy
 	rts
 
 write_char:		;;; Write char in register A to the display
@@ -59,6 +59,27 @@ write_char:		;;; Write char in register A to the display
 	sta PORTA
 	lda #RS		;;; Clear RS/RW/E bits
 	sta PORTA
+	jsr wait_while_busy
+	rts
+
+wait_while_busy:
+	pha
+	lda #%00000000	;;; Read on all pins of PORT B
+	sta DDRB
+
+	lda #RW
+	sta PORTA
+	lda #(RW | E)
+	sta PORTA
+while_busy:
+	lda PORTB
+	bmi while_busy
+
+	lda #RW
+	sta PORTA
+	lda #%11111111	;;; Output on all pins of PORT B
+	sta DDRB
+	pla
 	rts
 
 	.org $ffe0
