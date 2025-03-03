@@ -23,7 +23,7 @@ void write_char(unsigned char);
 
 void main()
 {
-	unsigned char x;
+	register unsigned char x;
 
 	STA(DDRB, 0xff);	/* Set all PORTB pins to output. */
 	STA(DDRA, 0b11100000);	/* Set the upper three pins of PORTA to output. */
@@ -45,11 +45,9 @@ void wait_while_busy()
 {
 	STA(DDRB, 0x00);	/* Set all PORTB pins to read */
 
-	do {
-		STA(PORTA, RW);
-		STA(PORTA, (RW | E));
-	}
-	while (LDA(PORTB) & 0x80);
+	STA(PORTA, RW);
+	STA(PORTA, (RW | E));
+	do {} while (LDA(PORTB) & 0x80);
 
 	STA(PORTA, RW);
 	STA(DDRB, 0xff);	/* Reset all PORTB pins to output */
