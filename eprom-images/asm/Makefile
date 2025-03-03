@@ -1,4 +1,5 @@
 SHELL := sh
+.SUFFIXES:
 .DEFAULT_GOAL := all
 .PHONY: clean all
 
