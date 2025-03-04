@@ -1,6 +1,6 @@
 SHELL := sh
 .SUFFIXES:
-.PHONY: clean
+.PHONY: clean all
 
 BUILD_DIR=build
 
@@ -14,6 +14,10 @@ EEPROM=AT28C256
 
 FIRMWARE_CFG=firmware.cfg
 CPU=65sc02
+
+TARGETS = hello_world.bin
+
+all: $(TARGETS)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR);\
@@ -38,4 +42,4 @@ $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s $(BUILD_DIR)
 	$(MINIPRO) -p $(EEPROM) -uP -w $<
 
 clean:
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) $(TARGETS)

@@ -7,10 +7,13 @@ targets = blink.bin rotate.bin hello_world.bin
 
 asm_available := $(shell command -v ./vasm/vasm6502_oldstyle 2> /dev/null)
 
+MINIPRO=minipro
+EEPROM=AT28C256
+
 all: $(targets)
 
 %: %.bin
-	@minipro -p AT28C256 -uP -w $<
+	@$(MINIPRO) -p $(EEPROM) -uP -w $<
 
 %.bin: %.s
 ifndef asm_available
