@@ -9,12 +9,6 @@
 
 	.include "zeropage.inc"
 
-	.segment "VECTORS"
-
-	.word $eaea
-	.addr _init
-	.word $eaea
-
 	.segment "STARTUP"
 _init:
 	ldx #$ff

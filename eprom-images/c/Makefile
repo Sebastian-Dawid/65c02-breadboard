@@ -17,25 +17,35 @@ CPU=65sc02
 
 TARGETS = hello_world.bin
 
+ALLOCATORS = allocators/page_allocator.c
+LCD = lcd/lcd.c
+
+COMMON = common/interrupt.s common/vector.s
+
 all: $(TARGETS)
 
-$(BUILD_DIR):
-	@mkdir -p $(BUILD_DIR);\
-	cp ./cc65/lib/none.lib $(BUILD_DIR)/common.lib
+$(BUILD_DIR)/common.lib: $(BUILD_DIR)/common/crt0.o
+	@mkdir -p $(dir $@)
+	@cp ./cc65/lib/none.lib $(BUILD_DIR)/common.lib
+	$(AR65) a $@ $<
 
-$(BUILD_DIR)/common.lib: $(BUILD_DIR)/crt0.o $(BUILD_DIR)
-	$(AR65) a $(BUILD_DIR)/common.lib $(BUILD_DIR)/crt0.o
+$(BUILD_DIR)/common_c.lib: $(ALLOCATORS:%.c=$(BUILD_DIR)/%.o) $(LCD:%.c=$(BUILD_DIR)/%.o)
+	@mkdir -p $(dir $@)
+	$(AR65) a $@ $^
 
-$(BUILD_DIR)/%.s: %.c $(BUILD_DIR)
-	$(CC65) -t none --cpu $(CPU) -Or -r -o $@ $<
+$(BUILD_DIR)/%.s: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC65) -t none --cpu $(CPU) -Or -r -I src -o $@ $<
 
-$(BUILD_DIR)/%.o: %.s $(BUILD_DIR)
+$(BUILD_DIR)/%.o: src/%.s
+	@mkdir -p $(dir $@)
 	$(CA65) --cpu $(CPU) -o $@ $< 
 
-$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s
+	@mkdir -p $(dir $@)
 	$(CA65) --cpu $(CPU) -o $@ $< 
 
-%.bin: $(BUILD_DIR)/%.o $(BUILD_DIR)/common.lib
+%.bin: $(BUILD_DIR)/%.o $(BUILD_DIR)/common_c.lib $(COMMON:%.s=$(BUILD_DIR)/%.o) $(BUILD_DIR)/common.lib
 	$(LD65) -C $(FIRMWARE_CFG) -o $@ $^
 
 %: %.bin
