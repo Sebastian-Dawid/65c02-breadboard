@@ -24,4 +24,4 @@ irq:
 	rti
 
 break:
-	stp
+	jsr _stop
