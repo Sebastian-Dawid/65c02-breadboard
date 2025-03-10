@@ -24,3 +24,4 @@
 void lcd_send_instruction(const uint8_t instruction);
 void lcd_write_char(const uint8_t character);
 void lcd_write_string(uint8_t* string);
+void lcd_move_cursor(const uint8_t line, const uint8_t character);

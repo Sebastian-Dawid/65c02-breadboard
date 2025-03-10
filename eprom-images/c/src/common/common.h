@@ -12,4 +12,5 @@
 // string. The number will be written into the buffer back to front. The length of
 // the buffer includes the null terminator. This means the "29" is a string of length
 // three.
-uint8_t* __cdecl__ bin_to_dec(const uint16_t number, uint8_t*const string, uint8_t length);
+uint8_t* bin_to_dec(const uint16_t number, uint8_t*const string, uint8_t length);
+uint8_t* bin_to_hex(uint16_t number, uint8_t*const string, uint8_t length);

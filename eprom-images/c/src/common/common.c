@@ -1,7 +1,7 @@
 #include "65c02.h"
 #include "common.h"
 
-uint8_t* __cdecl__ bin_to_dec(const uint16_t number, uint8_t*const string, uint8_t length)
+uint8_t* bin_to_dec(const uint16_t number, uint8_t*const string, uint8_t length)
 {
 	uint8_t c;
 
@@ -73,5 +73,30 @@ ignore_result:
 
 
 end:
+	return (string + length);
+}
+
+uint8_t* bin_to_hex(uint16_t number, uint8_t*const string, uint8_t length)
+{
+	uint8_t c;
+	--length;
+	*(string + length) = 0;
+
+	while (number && length > 0)
+	{
+		length--;
+		c = 0xf & number;
+		*(string + length) = (c < 0xa) ? c + '0' : c + ('A'-10);
+		number = number >> 4;
+	}
+
+	if (length > 1)
+	{
+		length--;
+		*(string + length) = 'x';
+		length--;
+		*(string + length) = '0';
+	}
+
 	return (string + length);
 }

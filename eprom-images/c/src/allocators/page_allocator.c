@@ -2,26 +2,27 @@
 #include "65c02.h"
 
 #define FIRST_PAGE		0x0200
+#define LAST_PAGE		0x3000
 #define PAGE_SIZE		0x0100
-#define PAGE_COUNT		(0x0200 + 0x3e00)/PAGE_SIZE
+#define PAGE_COUNT		(LAST_PAGE - FIRST_PAGE)/PAGE_SIZE
 #define MAX_ALLOCATION_SIZE	0x00ff
 
+// 8 bytes on the 65C02.
 struct page_allocator_t
 {
 	uint32_t lower_pages;	// lower 32 pages
-	uint32_t upper_pages;	// upper 32 pages
+	uint16_t upper_pages;	// upper 16 pages
 	void* next_page;	// next page that will be allocated
 };
-static struct page_allocator_t* this = NULL;
+#define this ((struct page_allocator_t*)FIRST_PAGE)
 
 void init_page_allocator()
 {
-	if (this != NULL)
+	if (this->next_page != NULL)
 		return;
-	this = (struct page_allocator_t*)FIRST_PAGE;
 	this->next_page = (void*)(FIRST_PAGE + PAGE_SIZE);
 	this->lower_pages = 0x00000007;	// the first three pages are always used.
-	this->upper_pages = 0x00000000;
+	this->upper_pages = 0x0000;
 }
 
 void* page_alloc(const size_t size)
@@ -31,8 +32,7 @@ void* page_alloc(const size_t size)
 	uint32_t* pages;
 	uint8_t offset;
 
-	if (this == NULL) return NULL;			// uninitialized allocator
-	if (this->next_page == NULL) return NULL;	// out of memory
+	if (this->next_page == NULL) return NULL;	// out of memory or uninitialized allocator
 	if (size > MAX_ALLOCATION_SIZE) return NULL;	// allocation too large
 
 	addr = this->next_page;
@@ -46,7 +46,7 @@ void* page_alloc(const size_t size)
 	/* look for next available pages */
 	offset = 0;
 	pages = &this->lower_pages;
-	for (page_index = 3; page_index < 64; ++page_index)
+	for (page_index = 3; page_index < 48; ++page_index)
 	{
 		if (page_index == 32)
 		{
@@ -67,20 +67,19 @@ ret:
 	return addr;
 }
 
-void page_free(const uint16_t* address)
+void page_free(const void* address)
 {
 	uint8_t page_index;
 	uint8_t index;
 
-	if (this == NULL) return;
-	if (address == NULL) return;
+	if ((address >= (void*)LAST_PAGE) || (address < (void*)(FIRST_PAGE + PAGE_SIZE))) return;
 	page_index = (uint16_t)address >> 8;
 
 	/* zero out freed memory */
 	index = 0;
 	do
 	{
-		STA(address + index, 0);
+		*((volatile unsigned char*)(address) + index) = 0;
 		index++;
 	} while (index);
 

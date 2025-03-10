@@ -15,7 +15,7 @@ EEPROM=AT28C256
 FIRMWARE_CFG=firmware.cfg
 CPU=65sc02
 
-TARGETS = hello_world.bin
+TARGETS = hello_world.bin print_num.bin
 
 ALLOCATORS = allocators/page_allocator.c
 LCD = lcd/lcd.c

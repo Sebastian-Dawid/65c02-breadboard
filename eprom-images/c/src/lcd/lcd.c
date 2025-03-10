@@ -30,6 +30,13 @@ void lcd_write_string(uint8_t* string)
 	}
 }
 
+void lcd_move_cursor(const uint8_t line, const uint8_t character)
+{
+	uint8_t instruction = 0b10000000 | character;
+	if (line) instruction |= 0b01000000;
+	lcd_send_instruction(instruction);
+}
+
 void wait_while_busy()
 {
 	STA(DDRB, 0x00);	/* Set all PORTB pins to read */
